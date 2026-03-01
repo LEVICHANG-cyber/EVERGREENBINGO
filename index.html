@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>台中長榮桂冠酒店 2026 賓果GAME</title>
+
+<style>
+body{
+margin:0;
+font-family:"Microsoft JhengHei",sans-serif;
+text-align:center;
+background:repeating-linear-gradient(
+90deg,#ffe066,#ffe066 140px,#ffd43b 140px,#ffd43b 280px);
+overflow:hidden;
+}
+
+h1{
+margin-top:25px;
+font-size:55px;
+color:#d62828;
+text-shadow:4px 4px #fff;
+}
+
+/* 白閃效果 */
+.flash{
+position:fixed;
+width:100%;
+height:100%;
+background:white;
+top:0;
+left:0;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+z-index:998;
+}
+.flash.show{opacity:0.9;}
+
+.machine{
+width:440px;
+height:500px;
+margin:0 auto;
+background:#ef233c;
+border-radius:35px;
+box-shadow:0 25px rgba(0,0,0,0.25);
+}
+
+.window{
+width:360px;
+height:250px;
+background:radial-gradient(circle,#ffffff,#cdeffd);
+border-radius:25px;
+margin:30px auto;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:120px;
+font-weight:bold;
+color:#d62828;
+}
+
+.handle{
+width:140px;
+height:140px;
+background:linear-gradient(#ffd43b,#ffba08);
+border-radius:50%;
+margin:15px auto;
+cursor:pointer;
+box-shadow:0 12px #c77d00;
+transition:transform 0.7s cubic-bezier(.2,.8,.2,1);
+}
+.handle.spin{transform:rotate(1080deg);}
+
+button{
+padding:15px 40px;
+font-size:22px;
+border:none;
+border-radius:15px;
+background:#d62828;
+color:#fff;
+cursor:pointer;
+margin:15px;
+}
+
+#star{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+font-size:220px;
+font-weight:bold;
+color:#d62828;
+transition:0.4s;
+z-index:999;
+text-shadow:0 0 30px #fff176,0 0 60px #ffdd00;
+}
+#star.show{transform:translate(-50%,-50%) scale(1.2);}
+
+.ball{
+display:inline-block;
+width:60px;
+height:60px;
+line-height:60px;
+border-radius:50%;
+margin:6px;
+font-weight:bold;
+color:white;
+font-size:22px;
+}
+
+.confetti{
+position:fixed;
+width:12px;
+height:24px;
+top:-20px;
+animation:fall 3s linear forwards;
+}
+@keyframes fall{
+to{transform:translateY(110vh) rotate(720deg);}
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎊 台中長榮桂冠酒店 2026 賓果 GAME 🎊</h1>
+
+<div class="flash" id="flash"></div>
+
+<div class="machine">
+<div class="window" id="rolling">?</div>
+<div class="handle" onclick="draw()"></div>
+</div>
+
+<button onclick="draw()">開始抽號</button>
+<button onclick="resetGame()">重新開始</button>
+
+<div id="history"></div>
+<div id="star"></div>
+
+<!-- 請改成你下載的高級音效 -->
+<audio id="spinSound" src="spin.mp3"></audio>
+<audio id="winSound" src="win.mp3"></audio>
+
+<script>
+
+let numbers=[];
+let isDrawing=false;
+
+function init(){
+numbers=[];
+for(let i=1;i<=75;i++){numbers.push(i);}
+}
+init();
+
+function randomColor(){
+let colors=["#ff6b6b","#4dabf7","#51cf66","#845ef7","#f59f00"];
+return colors[Math.floor(Math.random()*colors.length)];
+}
+
+function confetti(){
+for(let i=0;i<40;i++){
+let c=document.createElement("div");
+c.className="confetti";
+c.style.left=Math.random()*100+"vw";
+c.style.background=randomColor();
+document.body.appendChild(c);
+setTimeout(()=>{c.remove();},3000);
+}
+}
+
+function draw(){
+
+if(isDrawing) return;
+isDrawing=true;
+
+if(numbers.length===0){
+alert("全部抽完啦！");
+isDrawing=false;
+return;
+}
+
+let handle=document.querySelector(".handle");
+handle.classList.add("spin");
+
+let spin=document.getElementById("spinSound");
+spin.volume=0.6;
+spin.play();
+
+let rolling=document.getElementById("rolling");
+
+/* 數字亂跳效果 */
+let rollInterval=setInterval(()=>{
+rolling.innerText=Math.floor(Math.random()*75)+1;
+},60);
+
+setTimeout(()=>{
+
+clearInterval(rollInterval);
+
+let index=Math.floor(Math.random()*numbers.length);
+let result=numbers[index];
+numbers.splice(index,1);
+
+rolling.innerText=result;
+
+/* 白閃 */
+let flash=document.getElementById("flash");
+flash.classList.add("show");
+setTimeout(()=>flash.classList.remove("show"),200);
+
+let win=document.getElementById("winSound");
+win.volume=1;
+win.play();
+
+confetti();
+
+/* 中央巨大號碼 */
+let star=document.getElementById("star");
+star.innerText=result;
+star.classList.add("show");
+
+let ball=document.createElement("div");
+ball.className="ball";
+ball.style.background=randomColor();
+ball.innerText=result;
+document.getElementById("history").appendChild(ball);
+
+handle.classList.remove("spin");
+isDrawing=false;
+
+},1500);
+}
+
+function resetGame(){
+init();
+document.getElementById("history").innerHTML="";
+document.getElementById("star").classList.remove("show");
+document.getElementById("rolling").innerText="?";
+}
+
+</script>
+
+</body>
+</html>
